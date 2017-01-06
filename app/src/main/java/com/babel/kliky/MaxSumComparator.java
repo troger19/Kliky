@@ -11,8 +11,8 @@ class MaxSumComparator implements Comparator<Kliky> {
 
     @Override
     public int compare(Kliky kliky1, Kliky kliky2) {
-        Integer max1 = kliky1.getMax();
-        Integer max2 = kliky2.getMax();
+        Integer max1 = kliky1.getSum();
+        Integer max2 = kliky2.getSum();
         return max1.compareTo(max2);
     }
 

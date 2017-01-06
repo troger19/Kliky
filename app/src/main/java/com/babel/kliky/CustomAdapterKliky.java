@@ -103,7 +103,6 @@ public class CustomAdapterKliky extends ArrayAdapter<Kliky> {
         viewHolder.txtReps.setText(dataModel.getReps());
         viewHolder.txtSum.setText(String.valueOf(dataModel.getSum()));
         viewHolder.txtMax.setText(String.valueOf(dataModel.getMax()));
-//        viewHolder.txtMax.setTag(position);
 
         if (position > 0 && Integer.valueOf(viewHolder.txtMax.getText().toString()) > previousDataModel.getMax()) {
             viewHolder.imageView.setImageDrawable(mContext.getResources().getDrawable(arrowUp));
