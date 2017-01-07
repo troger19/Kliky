@@ -56,7 +56,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private String getJoke(int position) {
         List<String> jokes = Arrays.asList(
-                "Babka hovori detom: Uhnite!! A deti uhnili",
+                "1.Babka hovori detom: Uhnite!! A deti uhnili",
+                "2.Babka hovori detom: Uhnite!! A deti uhnili",
+                "3. Babka hovori detom: Uhnite!! A deti uhnili",
                 "je iba otazkou zornych uhlov,ci koliska nieje truhlou...",
                 "Viete, co by sa stalo, keby sa Zem otacala 30x rychlejsie??? Muzi by mali stale vyplatu a zeny by vykrvacali..",
                 "U usneho lekara: cistim si usi klincom, a zrazu ticho!",
