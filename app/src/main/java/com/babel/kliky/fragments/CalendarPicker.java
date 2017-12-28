@@ -1,4 +1,4 @@
-package com.babel.kliky;
+package com.babel.kliky.fragments;
 
 /**
  * Created by Kaktus on 27.12.2017.
@@ -7,11 +7,13 @@ package com.babel.kliky;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.babel.kliky.MainActivity;
+import com.babel.kliky.R;
+import com.babel.kliky.util.DatabaseHelper;
 import com.squareup.timessquare.CalendarPickerView;
 
 import java.text.ParseException;
@@ -19,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.Locale;
 
 public class CalendarPicker extends Fragment {
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
@@ -35,10 +37,10 @@ public class CalendarPicker extends Fragment {
 
         //  ------  define the calendar --------
         Calendar endDate = Calendar.getInstance();
-        endDate.add(Calendar.MONTH, 2);
+        endDate.add(Calendar.MONTH, 24);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy");
-        String startDateDate = "01-07-2015"; // TODO posunut starting date
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy", Locale.ENGLISH);
+        String startDateDate = "01-12-2017";
         Date startDate = null;
         try {
             startDate = sdf.parse(startDateDate);
@@ -57,27 +59,7 @@ public class CalendarPicker extends Fragment {
         calendar.setDrawingCacheBackgroundColor(Color.BLUE);
         calendar.setDrawingCacheEnabled(true);
         calendar.highlightDates(getTrainingDates());
-
-        calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
-            @Override
-            public void onDateSelected(Date date) {
-                Date selectedDate = calendar.getSelectedDate();
-                List<Date> selectedDates = calendar.getSelectedDates();
-                Log.d(LOG_TAG, "selectedDate :  " + selectedDate);
-                Log.d(LOG_TAG, "selectedDates :  " + selectedDates);
-            }
-
-            @Override
-            public void onDateUnselected(Date date) {
-                Date selectedDate = calendar.getSelectedDate();
-                List<Date> selectedDates = calendar.getSelectedDates();
-                Log.d(LOG_TAG, "selectedDate :  " + selectedDate);
-                Log.d(LOG_TAG, "selectedDates :  " + selectedDates);
-            }
-        });
-
         // ------------- end of calendar configuration -------------------------
-
         return view;
     }
 
@@ -85,7 +67,6 @@ public class CalendarPicker extends Fragment {
         DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
         return databaseHelper.getAllTrainingDays();
     }
-
 }
 
 

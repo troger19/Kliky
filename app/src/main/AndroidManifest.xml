@@ -23,9 +23,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CounterActivity" />
+        <activity android:name=".fragments.CounterActivity" />
         <activity android:name=".MyPreferencesActivity" />
-        <receiver android:name='com.babel.kliky.AlarmReceiver'>
+
+        <receiver android:name='com.babel.kliky.JokesReceiver'>
         </receiver>
     </application>
 </manifest>

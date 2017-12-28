@@ -1,4 +1,6 @@
-package com.babel.kliky;
+package com.babel.kliky.comparator;
+
+import com.babel.kliky.entity.Kliky;
 
 import java.util.Comparator;
 
@@ -7,7 +9,7 @@ import java.util.Comparator;
  */
 
 
-class MaxRepsComparator implements Comparator<Kliky> {
+public class MaxRepsComparator implements Comparator<Kliky> {
 
     @Override
     public int compare(Kliky kliky1, Kliky kliky2) {

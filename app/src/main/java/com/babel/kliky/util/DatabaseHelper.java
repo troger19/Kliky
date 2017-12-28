@@ -1,4 +1,4 @@
-package com.babel.kliky;
+package com.babel.kliky.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.babel.kliky.entity.Kliky;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,15 +20,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 	public static final String DATABASE_NAME = "KlikyDb";
 	private static final String DATABASE_TABLE_NAME = "kliky";
-	public static final String ID = "ID";
-	public static final String COLUMN_DATE = "DATE";
+    public static final String COLUMN_ID = "ID";
+    public static final String COLUMN_DATE = "DATE";
 	public static final String COLUMN_REPS = "REPS";
 	public static final String COLUMN_SUM = "SUM";
 	public static final String COLUMN_MAX = "MAX";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
-	DatabaseHelper(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	/**
@@ -35,8 +37,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE " + DATABASE_TABLE_NAME +
-				" (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-				COLUMN_DATE + " DATE, " +
+                " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_DATE + " DATE, " +
 				COLUMN_REPS + " TEXT, " +
 				COLUMN_SUM + " INTEGER, " +
 				COLUMN_MAX + " INTEGER )");
@@ -67,6 +69,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return db.insert(DATABASE_TABLE_NAME, null, cv);
 	}
 
+    public int updateRecord(Kliky kliky) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_DATE, convertDateToString(kliky.getDate()));
+        cv.put(COLUMN_REPS, kliky.getReps());
+        cv.put(COLUMN_SUM, kliky.getSum());
+        cv.put(COLUMN_MAX, kliky.getMax());
+
+        return db.update(DATABASE_TABLE_NAME, cv, COLUMN_ID + "=" + kliky.getId(), null);
+    }
+
 	/**
 	 * //This method returns all notes from the database
 	 */
@@ -80,8 +93,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		if (cursor.moveToFirst()) {
 			do {
 				Kliky kliky = new Kliky();
-				kliky.id = cursor.getInt(cursor.getColumnIndex(ID));
-				kliky.reps = cursor.getString(cursor.getColumnIndex(COLUMN_REPS));
+                kliky.id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                kliky.reps = cursor.getString(cursor.getColumnIndex(COLUMN_REPS));
 				kliky.date = convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_DATE)));
 				kliky.sum = cursor.getInt(cursor.getColumnIndex(COLUMN_SUM));
 				kliky.max = cursor.getInt(cursor.getColumnIndex(COLUMN_MAX));
@@ -118,8 +131,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 */
 	public void deleteKliky(long id) {
 		SQLiteDatabase db = this.getReadableDatabase();
-		db.execSQL("DELETE FROM " + DATABASE_TABLE_NAME + " WHERE " + ID
-				+ "=" + id + "");
+        db.execSQL("DELETE FROM " + DATABASE_TABLE_NAME + " WHERE " + COLUMN_ID
+                + "=" + id + "");
 	}
 
 

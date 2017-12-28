@@ -16,7 +16,7 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.List;
 
-public class AlarmReceiver extends BroadcastReceiver {
+public class JokesReceiver extends BroadcastReceiver {
 
     private static final String LAST_JOKE_POSITION = "lastJoke";
     private int jokePosition;

@@ -1,4 +1,4 @@
-package com.babel.kliky;
+package com.babel.kliky.entity;
 
 import java.util.Date;
 

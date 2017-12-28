@@ -10,14 +10,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.babel.kliky.entity.Kliky;
+import com.babel.kliky.util.DatabaseHelper;
+
 import java.util.ArrayList;
 
 /**
  * Created by jan.babel on 26/12/2016.
  */
 
-
-//public class CustomAdapterKliky extends ArrayAdapter<Kliky> implements View.OnClickListener, AdapterView.OnItemClickListener{
 public class CustomAdapterKliky extends ArrayAdapter<Kliky> {
     private final static String LOG_TAG = CustomAdapterKliky.class.getSimpleName();
     private final DatabaseHelper databaseHelper;
@@ -49,7 +50,6 @@ public class CustomAdapterKliky extends ArrayAdapter<Kliky> {
 
     }
 
-    //    @Override
     public void onClick(View v) {
         Log.i(LOG_TAG, "onClick111 Pressed");
         int position = (Integer) v.getTag();
@@ -64,7 +64,6 @@ public class CustomAdapterKliky extends ArrayAdapter<Kliky> {
         }
     }
 
-    private int lastPosition = -1;
 
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {

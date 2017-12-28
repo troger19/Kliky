@@ -3,6 +3,7 @@ package com.babel.kliky;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,9 +24,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.babel.kliky.comparator.MaxRepsComparator;
+import com.babel.kliky.comparator.MaxSumComparator;
+import com.babel.kliky.entity.Kliky;
+import com.babel.kliky.fragments.CalendarPicker;
+import com.babel.kliky.fragments.CounterActivity;
+import com.babel.kliky.util.DatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,22 +44,97 @@ import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final static String LOG_TAG = MainActivity.class.getSimpleName();
     public final static String BALANCE = "balance";
     public final static String MAX = "max";
     public final static String SUM = "sum";
-    private FloatingActionButton fab;
-    public static final String DATABASE_NAME = "kliky.db";
+    private final static String LOG_TAG = MainActivity.class.getSimpleName();
     CustomAdapterKliky adapter;
     ArrayList<Kliky> listItems;
     DatabaseHelper databaseHelper;
     ListView listView;
     TextView txtMaxReps, txtMaxSum, txtDayOfYear;
+    AlarmManager alarmManager;
+    String pickedUpdateDate;
+    private FloatingActionButton fab;
     private int deleteItem;
+
+    /**
+     * On a long click delete the selected item, or update a date of a training
+     */
+    public AdapterView.OnItemLongClickListener myClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(final AdapterView<?> parent, View v, int position, long id) {
+            deleteItem = position;
+
+            new AlertDialog.Builder(parent.getContext())
+                    .setTitle("Delete " + listItems.get(position).date)
+                    .setPositiveButton("Ok",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                    Kliky kliky = listItems.get(deleteItem);
+                                    databaseHelper.deleteKliky(kliky.id);
+
+                                    listItems.remove(deleteItem);
+                                    adapter.notifyDataSetChanged();
+
+                                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                                    overridePendingTransition(0, 0);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                    finish();
+                                    overridePendingTransition(0, 0);
+                                    startActivity(intent);
+                                }
+                            })
+                    .setNeutralButton("Pick a Date", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final int mYear, mMonth, mDay;
+                            final Calendar c = Calendar.getInstance();
+                            mYear = c.get(Calendar.YEAR);
+                            mMonth = c.get(Calendar.MONTH);
+                            mDay = c.get(Calendar.DAY_OF_MONTH);
+
+                            final DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                    pickedUpdateDate = dayOfMonth + "." + (monthOfYear + 1) + "." + year;
+                                }
+                            };
+                            final DatePickerDialog datePickerDialog = new DatePickerDialog(parent.getContext(),
+                                    datePickerListener, mYear, mMonth, mDay);
+
+                            datePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            DatePicker datePicker = datePickerDialog.getDatePicker();
+                                            datePickerListener.onDateSet(datePicker, datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                                            Toast.makeText(MainActivity.this, "Update a date " + pickedUpdateDate, Toast.LENGTH_SHORT).show();
+                                            Kliky kliky = listItems.get(deleteItem);
+                                            kliky.setDate(DatabaseHelper.convertStringToDate(pickedUpdateDate));
+                                            databaseHelper.updateRecord(kliky);
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+                            datePickerDialog.show();
+                        }
+                    })
+                    .setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                    dialog.cancel();
+                                }
+                            }).show();
+
+
+            return false;
+        }
+
+
+    };
     private PendingIntent pendingIntent;
     private Intent alarmIntent;
-    AlarmManager alarmManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listView.setAdapter(adapter);
         listView.setOnItemLongClickListener(myClickListener);
 
-        alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        alarmIntent = new Intent(MainActivity.this, JokesReceiver.class);
         alarmIntent.putExtra(BALANCE, dayOfYear_Trainings);
         alarmIntent.putExtra(MAX, maxKlik);
         alarmIntent.putExtra(SUM, maxSum);
@@ -157,28 +241,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
-//
-//    private void exportDB() {
-//        File sd = Environment.getExternalStorageDirectory();
-//        File data = Environment.getDataDirectory();
-//        FileChannel source = null;
-//        FileChannel destination = null;
-//        String currentDBPath = "/data/" + "com.babel.kliky" + "/databases/" + DATABASE_NAME;
-//        String backupDBPath = DATABASE_NAME;
-//        File currentDB = new File(data, currentDBPath);
-//        File backupDB = new File(sd, backupDBPath);
-//        try {
-//            source = new FileInputStream(currentDB).getChannel();
-//            destination = new FileOutputStream(backupDB).getChannel();
-//            destination.transferFrom(source, 0, source.size());
-//            source.close();
-//            destination.close();
-//            Toast.makeText(MainActivity.this, "DB Exported!", Toast.LENGTH_LONG).show();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -238,57 +300,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-    /**
-     * On a long click delete the selected item
-     */
-    public AdapterView.OnItemLongClickListener myClickListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-            Log.d(LOG_TAG, "Long click pressed");
-            deleteItem = position;
-
-            new AlertDialog.Builder(parent.getContext())
-                    .setTitle("Delete " + listItems.get(position).date)
-                    .setPositiveButton("Ok",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                    Kliky kliky = listItems.get(deleteItem);
-                                    databaseHelper.deleteKliky(kliky.id);
-
-                                    listItems.remove(deleteItem);
-                                    adapter.notifyDataSetChanged();
-
-                                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                    overridePendingTransition(0, 0);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                    finish();
-                                    overridePendingTransition(0, 0);
-                                    startActivity(intent);
-                                }
-                            })
-                    .setNeutralButton("Pick a Date", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(MainActivity.this, "Update a date", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("Cancel",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                    dialog.cancel();
-                                }
-                            }).show();
-
-
-            return false;
-        }
-
-
-    };
 
     public void smsAlarmSetup() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);

@@ -1,4 +1,4 @@
-package com.babel.kliky;
+package com.babel.kliky.util;
 
 /**
  * Copyright 2005 Bytecode Pty Ltd.
