@@ -1,14 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:app="http://schemas.android.com/apk/res-auto"--><!--xmlns:tools="http://schemas.android.com/tools"--><!--android:id="@+id/content_main"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:paddingBottom="5dp"--><!--android:paddingLeft="5dp"--><!--android:paddingRight="5dp"--><!--android:paddingTop="5dp"-->
-
-<!--tools:context="com.babel.kliky.MainActivity"--><!--tools:showIn="@layout/app_bar_main">-->
-
-
-<!--&lt;!&ndash;app:layout_behavior="@string/appbar_scrolling_view_behavior"&ndash;&gt;--><!--<TextView--><!--android:paddingTop="50dp"--><!--android:id="@+id/txtMaxReps"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:text="ahooj" />-->
-
-<!--&lt;!&ndash;<ListView&ndash;&gt;--><!--&lt;!&ndash;android:id="@+id/list"&ndash;&gt;--><!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_below="@+id/txtMaxReps"&ndash;&gt;--><!--&lt;!&ndash;android:layout_toRightOf="@+id/txtMaxReps"&ndash;&gt;--><!--&lt;!&ndash;android:layout_toEndOf="@+id/txtMaxReps"&ndash;&gt;--><!--&lt;!&ndash;android:paddingTop="66dp">&ndash;&gt;--><!--&lt;!&ndash;</ListView>&ndash;&gt;-->
-
-
-<!--</RelativeLayout>-->
+<?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/content_main"
@@ -20,18 +10,18 @@
     android:paddingRight="5dp">
 
     <LinearLayout
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:paddingTop="55dp">
 
 
-    <TextView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-       android:text="Max : "
+            android:text="Max : "
             android:textSize="25sp" />
 
 
@@ -39,8 +29,8 @@
             android:id="@+id/txtMaxReps"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="25sp"
-            android:textColor="@color/colorAccent"/>
+            android:textColor="@color/colorAccent"
+            android:textSize="25sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -54,42 +44,38 @@
             android:id="@+id/txtMaxSum"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="25sp"
-            android:textColor="@color/colorAccent"/>
+            android:textColor="@color/colorAccent"
+            android:textSize="25sp" />
 
 
         <TextView
             android:id="@+id/txtDayOfYear"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="25sp"
             android:paddingLeft="20dp"
-            />
+            android:textSize="25sp" />
 
     </LinearLayout>
-
-
 
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="2dp"
-        android:background="@color/colorPrimary"/>
+        android:background="@color/colorPrimary" />
 
 
     <LinearLayout
-        android:layout_height="0dp"
         android:layout_width="fill_parent"
+        android:layout_height="0dp"
         android:layout_weight="8"
         android:orientation="horizontal"
 
         android:paddingTop="10dp">
 
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-      />
-</LinearLayout>
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

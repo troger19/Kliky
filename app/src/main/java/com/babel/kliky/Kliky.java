@@ -1,15 +1,13 @@
 package com.babel.kliky;
 
-import java.util.Comparator;
 import java.util.Date;
 
-//public class Kliky implements Comparable<Kliky> {
-public class Kliky  {
+public class Kliky {
     public int id;
-	public Date date;
-	public String reps;
-	public int sum;
-	public int max;
+    public Date date;
+    public String reps;
+    public int sum;
+    public int max;
 
     public Kliky() {
     }
@@ -56,17 +54,4 @@ public class Kliky  {
     public void setMax(int max) {
         this.max = max;
     }
-
-
-//
-//    @Override
-//    public int compareTo(Kliky another) {
-//        if(max==another.max)
-//            return 0;
-//        else if(max>another.max)
-//            return 1;
-//        else
-//            return -1;
-//}
-
 }

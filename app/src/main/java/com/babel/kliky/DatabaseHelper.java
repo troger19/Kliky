@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -88,6 +87,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				kliky.max = cursor.getInt(cursor.getColumnIndex(COLUMN_MAX));
 
 				listItems.add(kliky);
+			} while (cursor.moveToNext());
+		}
+
+		cursor.close();
+
+		return listItems;
+	}
+
+	public ArrayList<Date> getAllTrainingDays() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		ArrayList<Date> listItems = new ArrayList<>();
+
+		Cursor cursor = db.rawQuery("SELECT DATE from " + DATABASE_TABLE_NAME,
+				new String[]{});
+
+		if (cursor.moveToFirst()) {
+			do {
+				listItems.add(convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_DATE))));
 			} while (cursor.moveToNext());
 		}
 

@@ -25,7 +25,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String mobileNumber = sharedPref.getString(MyPreferencesActivity.MOBILE_NUMBER_PREF, "+421905856454");
+        String mobileNumber = sharedPref.getString(MyPreferencesActivity.MOBILE_NUMBER_PREF, "+421907131960");
 //        String messageFromPreferences = sharedPref.getString(MyPreferencesActivity.SMS_MESSAGE_PREF, "Zase sa flakas!?");
         jokePosition = sharedPref.getInt(LAST_JOKE_POSITION, 0);
         String messageFromPreferences = getJoke(jokePosition);

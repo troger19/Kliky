@@ -1,5 +1,6 @@
 package com.babel.kliky;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -8,40 +9,31 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
-import android.Manifest;
 
-
-public class MainActivity extends AppCompatActivity implements
-        NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
     public final static String BALANCE = "balance";
@@ -151,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements
         if (!shouldSendSms) {
             cancelAlarm();
         } else {
-            startAt10();
+            smsAlarmSetup();
         }
 
     }
@@ -166,27 +158,27 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
-    private void exportDB() {
-        File sd = Environment.getExternalStorageDirectory();
-        File data = Environment.getDataDirectory();
-        FileChannel source = null;
-        FileChannel destination = null;
-        String currentDBPath = "/data/" + "com.babel.kliky" + "/databases/" + DATABASE_NAME;
-        String backupDBPath = DATABASE_NAME;
-        File currentDB = new File(data, currentDBPath);
-        File backupDB = new File(sd, backupDBPath);
-        try {
-            source = new FileInputStream(currentDB).getChannel();
-            destination = new FileOutputStream(backupDB).getChannel();
-            destination.transferFrom(source, 0, source.size());
-            source.close();
-            destination.close();
-            Toast.makeText(MainActivity.this, "DB Exported!", Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//
+//    private void exportDB() {
+//        File sd = Environment.getExternalStorageDirectory();
+//        File data = Environment.getDataDirectory();
+//        FileChannel source = null;
+//        FileChannel destination = null;
+//        String currentDBPath = "/data/" + "com.babel.kliky" + "/databases/" + DATABASE_NAME;
+//        String backupDBPath = DATABASE_NAME;
+//        File currentDB = new File(data, currentDBPath);
+//        File backupDB = new File(sd, backupDBPath);
+//        try {
+//            source = new FileInputStream(currentDB).getChannel();
+//            destination = new FileOutputStream(backupDB).getChannel();
+//            destination.transferFrom(source, 0, source.size());
+//            source.close();
+//            destination.close();
+//            Toast.makeText(MainActivity.this, "DB Exported!", Toast.LENGTH_LONG).show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -211,18 +203,23 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        if (id == R.id.nav_camera) {
-            Log.d(LOG_TAG, "Camera pressed ");
-            Toast.makeText(MainActivity.this, "Camera pressed", Toast.LENGTH_LONG).show();
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-            Log.d(LOG_TAG, "Gallery pressed ");
-            Toast.makeText(MainActivity.this, "Gallery pressed", Toast.LENGTH_LONG).show();
+        if (id == R.id.nav_calendar) { // display calendar
+            CalendarPicker calendarFragment = new CalendarPicker();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_main, calendarFragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else if (id == R.id.nav_trainings) { // display training list
+            Intent mainActivityIntent = new Intent(MainActivity.this, MainActivity.class);
+            overridePendingTransition(0, 0);
+            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            finish();
+            overridePendingTransition(0, 0);
+            startActivity(mainActivityIntent);
         } else if (id == R.id.nav_slideshow) {
             Log.d(LOG_TAG, "Slideshow pressed ");
             Toast.makeText(MainActivity.this, "Simka lubi Janka", Toast.LENGTH_LONG).show();
@@ -252,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements
             Log.d(LOG_TAG, "Long click pressed");
             deleteItem = position;
 
-            AlertDialog alert = new AlertDialog.Builder(parent.getContext())
+            new AlertDialog.Builder(parent.getContext())
                     .setTitle("Delete " + listItems.get(position).date)
                     .setPositiveButton("Ok",
                             new DialogInterface.OnClickListener() {
@@ -266,12 +263,18 @@ public class MainActivity extends AppCompatActivity implements
 
                                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
                                     overridePendingTransition(0, 0);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                     finish();
                                     overridePendingTransition(0, 0);
                                     startActivity(intent);
                                 }
                             })
+                    .setNeutralButton("Pick a Date", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(MainActivity.this, "Update a date", Toast.LENGTH_SHORT).show();
+                        }
+                    })
                     .setNegativeButton("Cancel",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
@@ -280,13 +283,14 @@ public class MainActivity extends AppCompatActivity implements
                                 }
                             }).show();
 
+
             return false;
         }
 
 
     };
 
-    public void startAt10() {
+    public void smsAlarmSetup() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -301,7 +305,6 @@ public class MainActivity extends AppCompatActivity implements
                 AlarmManager.INTERVAL_DAY, pendingIntent);
 //                1000 * 60 *2, pendingIntent);
 
-
     }
 
     public void cancelAlarm() {
@@ -309,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
         }
-
     }
 
 }
