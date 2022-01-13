@@ -8,5 +8,6 @@
     <color name="colorAccent">#00C7FF</color>
     <color name="colorCounterPositive">#17fa02</color>
     <color name="colorCounterNegative">#fc020f</color>
-    <!--<color name="primary">black</color>-->
+    <color name="colorWhiteText">#FFFFFF</color>
+    <color name="colorBgList">#EBF1F4</color>
 </resources>

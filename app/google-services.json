@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "741729194250",
+    "firebase_url": "https://bikerpm-1f106.firebaseio.com",
+    "project_id": "bikerpm-1f106",
+    "storage_bucket": "bikerpm-1f106.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:741729194250:android:dfb4bef82d5ef0df3c6af3",
+        "android_client_info": {
+          "package_name": "com.itible.exercise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "741729194250-j7cml13ee2uu6pm3lm0k764nobpbn8ls.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr_AlJht21yD5pPu-JFlFtLfNiW4uJCkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "741729194250-j7cml13ee2uu6pm3lm0k764nobpbn8ls.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

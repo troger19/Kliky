@@ -44,15 +44,15 @@
         <Preference android:title="Export Database">
             <intent
                 android:action="export_db"
-                android:targetClass="com.babel.kliky.MyPreferencesActivity"
-                android:targetPackage="com.babel.kliky" />
+                android:targetClass="com.itible.exercise.MyPreferencesActivity"
+                android:targetPackage="com.itible.exercise" />
         </Preference>
 
         <Preference android:title="Delete Database">
             <intent
                 android:action="drop_db"
-                android:targetClass="com.babel.kliky.MyPreferencesActivity"
-                android:targetPackage="com.babel.kliky" />
+                android:targetClass="ccom.itible.exercise.MyPreferencesActivity"
+                android:targetPackage="com.itible.exercise" />
         </Preference>
 
     </PreferenceCategory>

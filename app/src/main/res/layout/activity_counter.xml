@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.design.widget.CoordinatorLayout android:id="@+id/coordinatorLayout"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/coordinatorLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,9 +8,9 @@
     tools:context=".MainActivity">
 
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:CircleProgressView="http://schemas.android.com/apk/res-auto"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:CircleProgressView="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_counter"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -18,9 +18,9 @@
     android:paddingBottom="@dimen/vertical_margin"
     android:paddingLeft="@dimen/horizontal_margin"
     android:paddingRight="@dimen/horizontal_margin"
-    android:paddingTop="@dimen/vertical_margin"
-    tools:context="com.babel.kliky.fragments.CounterActivity"
-    android:background="#333434">
+        android:paddingTop="@dimen/vertical_margin"
+        tools:context="com.itible.exercise.fragments.CounterActivity"
+        android:background="#333434">
 
 <at.grabner.circleprogress.CircleProgressView
     android:id="@+id/circleView"
@@ -46,13 +46,13 @@
     CircleProgressView:cpv_value="0" />
 
 
-    <TextView
-        android:id="@+id/txtReps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="50dp"
-        android:textColor="@color/colorAccent"
-        android:textSize="40sp"/>
+        <TextView
+            android:id="@+id/txtReps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="50dp"
+            android:textColor="@color/colorAccent"
+            android:textSize="40sp" />
 
-</LinearLayout>
-</android.support.design.widget.CoordinatorLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
