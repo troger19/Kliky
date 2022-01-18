@@ -17,8 +17,6 @@ public class MyPreferencesActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
-
-        final String action = getIntent().getAction();
     }
 
     public static class MyPreferenceFragment extends PreferenceFragment {

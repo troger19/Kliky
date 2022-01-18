@@ -7,12 +7,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class EmployeeVH extends RecyclerView.ViewHolder {
+public class ExerciseVH extends RecyclerView.ViewHolder {
     public TextView txt_max, txt_sum, txt_date, txt_reps;
     public ImageView icon_progress;
 
 
-    public EmployeeVH(@NonNull View itemView) {
+    public ExerciseVH(@NonNull View itemView) {
         super(itemView);
         txt_max = itemView.findViewById(R.id.txt_max);
         txt_sum = itemView.findViewById(R.id.txt_sum);

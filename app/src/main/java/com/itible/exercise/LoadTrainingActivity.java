@@ -46,22 +46,7 @@ public class LoadTrainingActivity extends AppCompatActivity {
         statsDao = new StatisticsDao();
         adapter = new RVAdapter(this, arrow_up, arrow_down, exerciseDao);
         recyclerView.setAdapter(adapter);
-
         loadData();
-//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-//                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                int totalItem = linearLayoutManager.getItemCount();
-//                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-//                if (totalItem < lastVisible + 3) {
-//                    if (!isLoading) {
-//                        isLoading = true;
-//                        loadData();
-//                    }
-//                }
-//            }
-//        });
     }
 
     private void loadData() {
@@ -88,6 +73,4 @@ public class LoadTrainingActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }

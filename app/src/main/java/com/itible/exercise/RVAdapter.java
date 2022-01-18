@@ -46,7 +46,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.training_item, parent, false);
-        return new EmployeeVH(view);
+        return new ExerciseVH(view);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, Exercise e) {
-        EmployeeVH viewHolder = (EmployeeVH) holder;
+        ExerciseVH viewHolder = (ExerciseVH) holder;
         Exercise emp = e == null ? list.get(position) : e;
         viewHolder.txt_max.setText(String.valueOf(emp.getMax()));
         viewHolder.txt_sum.setText(String.valueOf(emp.getSum()));
@@ -76,10 +76,14 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .max(Comparator.comparing(Exercise::getSum))
                 .orElse(new Exercise());
 
-        if (position > 0 && Integer.parseInt(viewHolder.txt_max.getText().toString()) > list.get(position - 1).getMax()) {
-            viewHolder.icon_progress.setImageDrawable(context.getResources().getDrawable(arrowUp, context.getTheme()));
-        } else {
-            viewHolder.icon_progress.setImageDrawable(context.getResources().getDrawable(arrowDown, context.getTheme()));
+
+        if (position > 0) {
+            Exercise pastMax = list.subList(0, position).stream().max(Comparator.comparing(Exercise::getMax)).orElse(new Exercise());
+            if (Integer.parseInt(viewHolder.txt_max.getText().toString()) > pastMax.getMax()) {
+                viewHolder.icon_progress.setImageDrawable(context.getResources().getDrawable(arrowUp, context.getTheme()));
+            } else {
+                viewHolder.icon_progress.setImageDrawable(context.getResources().getDrawable(arrowDown, context.getTheme()));
+            }
         }
         if (Integer.valueOf(viewHolder.txt_max.getText().toString()) == maxRepExercise.getMax()) {
             viewHolder.txt_max.setTextColor(context.getResources().getColor(R.color.colorCounterPositive));
@@ -113,6 +117,10 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Edit Values:").setView(textEntryView)
                 .setPositiveButton("Save", (dialog, which) -> {
+                    if (!Util.insertedValuesCheck(edtMax.getText().toString(), edtSum.getText().toString(), edtReps.getText().toString())) {
+                        Toast.makeText(context, "Zadane hodnoty nie su v poriadku", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     HashMap<String, Object> hashMap = new HashMap<>();
                     try {
                         hashMap.put("date", Util.sdf.parse(edtDate.getText().toString()).getTime());

@@ -1,62 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="SMS Alert Preferences">
-        <PreferenceScreen android:title="SMS">
-
-            <CheckBoxPreference
-                android:key="alarm_preference"
-                android:onClick="deactivate"
-                android:summary="Turn On/OFF sending SMS"
-                android:title="Send SMS" />
+    <PreferenceCategory android:title="User Detail Preferences">
+        <PreferenceScreen android:title="User Detail">
 
             <EditTextPreference
-                android:dialogTitle="Enter the Mobile number"
-                android:inputType="phone"
-                android:key="mobile_number_preference"
-                android:summary="Mobile number to which SMS alert will be send"
-                android:title="Mobile Number" />
-
-            <EditTextPreference
-                android:dialogTitle="Enter the SMS message"
-                android:key="sms_message_preference"
-                android:summary="Text of the SMS alert message"
-                android:title="SMS text" />
+                android:dialogTitle="Enter Username"
+                android:key="username_preference"
+                android:summary="Username which will be used to store the training."
+                android:title="Username" />
 
         </PreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Application Preferences">
         <EditTextPreference
+            android:id="@+id/pref_number_of_series"
             android:dialogTitle="Enter the number of series"
             android:inputType="number"
             android:key="number_of_series_preference"
             android:summary="Number of series per training"
-            android:title="Number of series" />
+            android:title="Number of series"
+            android:defaultValue="10" />
 
         <EditTextPreference
             android:dialogTitle="Enter pause in seconds"
             android:inputType="number"
             android:key="pause_preference"
             android:summary="Pause between series in seconds"
-            android:title="Pause" />
-
-        <Preference android:title="Export Database">
-            <intent
-                android:action="export_db"
-                android:targetClass="com.itible.exercise.MyPreferencesActivity"
-                android:targetPackage="com.itible.exercise" />
-        </Preference>
-
-        <Preference android:title="Delete Database">
-            <intent
-                android:action="drop_db"
-                android:targetClass="ccom.itible.exercise.MyPreferencesActivity"
-                android:targetPackage="com.itible.exercise" />
-        </Preference>
+            android:title="Pause"
+            android:defaultValue="60" />
 
     </PreferenceCategory>
-
 
     <PreferenceCategory android:title="Other">
     <PreferenceScreen

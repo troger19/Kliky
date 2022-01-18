@@ -63,22 +63,18 @@ public class CounterActivity extends FragmentActivity {
         progressCircle = findViewById(R.id.circleView);
         txtRepsArray = findViewById(R.id.txtReps);
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
-//        ContentResolver contentResolver = CounterActivity.this.getContentResolver();
 
         exerciseDao = new ExerciseDao();
         statisticsDao = new StatisticsDao();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        NUMBER_OF_SERIES = Integer.valueOf(sharedPref.getString(MyPreferencesActivity.NUMBER_OF_SERIES_PREF, "2"));
-        PAUSE_IN_SECONDS = Integer.valueOf(sharedPref.getString(MyPreferencesActivity.PAUSE_PREF, "60"));
+        NUMBER_OF_SERIES = Integer.parseInt(sharedPref.getString(MyPreferencesActivity.NUMBER_OF_SERIES_PREF, "10"));
+        PAUSE_IN_SECONDS = Integer.parseInt(sharedPref.getString(MyPreferencesActivity.PAUSE_PREF, "60"));
 
 
-        progressCircle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                counter++;
-                progressCircle.setValueAnimated(0, 100, PAUSE_IN_SECONDS * 1000);
-                showEnterRepsDialog();
-            }
+        progressCircle.setOnClickListener(v -> {
+            counter++;
+            progressCircle.setValueAnimated(0, 100, PAUSE_IN_SECONDS * 1000);
+            showEnterRepsDialog();
         });
 
         progressCircle.setOnAnimationStateChangedListener(new AnimationStateChangedListener() {
@@ -106,6 +102,7 @@ public class CounterActivity extends FragmentActivity {
         enterRepsDialog.setTitle("Insert txtReps");
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.requestFocus();
         enterRepsDialog.setView(input);
         enterRepsDialog.setCancelable(false);
 
@@ -140,6 +137,7 @@ public class CounterActivity extends FragmentActivity {
         saveTrainingDialog.setCancelable(false);
         final EditText editTextReps = new EditText(this);
         editTextReps.setText(txtRepsArray.getText());
+        editTextReps.requestFocus();
         editTextReps.setInputType(InputType.TYPE_CLASS_NUMBER);
         saveTrainingDialog.setView(editTextReps);
 
