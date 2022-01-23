@@ -97,6 +97,11 @@ public class CounterActivity extends FragmentActivity {
         });
     }
 
+    /**
+     * Enter repetitions after each set.
+     *
+     * @param exerciseName name of the exercise -> user_exercise
+     */
     private void showEnterRepsDialog(String exerciseName) {
         AlertDialog.Builder enterRepsDialog = new AlertDialog.Builder(this);
         enterRepsDialog.setTitle("Insert txtReps");
@@ -106,17 +111,14 @@ public class CounterActivity extends FragmentActivity {
         enterRepsDialog.setView(input);
         enterRepsDialog.setCancelable(false);
 
-        enterRepsDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialogText = input.getText().toString();
-                repsBuilder.append(dialogText).append(",");
-                txtRepsArray.setText(repsBuilder);
-                if (counter == NUMBER_OF_SERIES) {
-                    showDoneSnackBar(exerciseName);
-                }
-
+        enterRepsDialog.setPositiveButton("OK", (dialog, which) -> {
+            dialogText = input.getText().toString();
+            repsBuilder.append(dialogText).append(",");
+            txtRepsArray.setText(repsBuilder);
+            if (counter == NUMBER_OF_SERIES) {
+                showDoneSnackBar(exerciseName);
             }
+
         });
         enterRepsDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -130,7 +132,11 @@ public class CounterActivity extends FragmentActivity {
         d.show();
     }
 
-
+    /**
+     * Show save training dialog at the end of training
+     *
+     * @param exerciseName exerciseName
+     */
     private void showSaveTrainingDialog(String exerciseName) {
         AlertDialog.Builder saveTrainingDialog = new AlertDialog.Builder(this);
         saveTrainingDialog.setTitle("Save training");
@@ -153,12 +159,23 @@ public class CounterActivity extends FragmentActivity {
         d.show();
     }
 
+    /**
+     * Show snack bar dialog at the end of the training. Dialog pop up at the bottom of the screen
+     *
+     * @param exerciseName exerciseName
+     */
     private void showDoneSnackBar(String exerciseName) {
         Snackbar bar = Snackbar.make(coordinatorLayout, "Training Complete", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Save", v -> showSaveTrainingDialog(exerciseName));
         bar.show();
     }
 
+    /**
+     * Save data to firebase DB
+     *
+     * @param repsToSave repsToSave
+     * @param name       name
+     */
     private void saveToDb(String repsToSave, String name) {
         String[] repetitions = repsToSave.split(",");
         int sum = 0;

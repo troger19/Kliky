@@ -87,6 +87,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         loadData(user + "_" + exerciseName);
     }
 
+    /**
+     * Load saved exercises and statistics
+     *
+     * @param exerciseName exercise name containing user and exercise name
+     */
     private void loadData(String exerciseName) {
         statisticsDao.get(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -94,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 for (DataSnapshot data : snapshot.getChildren()) {
                     statistics = data.getValue(Statistics.class);
                     statistics.setKey(data.getKey());
-                    refreshStatistics(statistics); // calling a function with data
+                    refreshStatisticsText(statistics); // calling a function with data
                 }
             }
 
@@ -107,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 long childrenCount = snapshot.getChildrenCount();
-                refreshStatistics2(childrenCount);
+                refreshStatisticsText2(childrenCount);
             }
 
             @Override
@@ -131,12 +136,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void refreshStatistics(Statistics statistics) {
+    /**
+     * Load the max rep and sum on the main page
+     *
+     * @param statistics statistics
+     */
+    private void refreshStatisticsText(Statistics statistics) {
         txtMaxReps.setText(statistics == null ? "0" : "" + statistics.getMaxReps());
         txtMaxSum.setText(statistics == null ? "0" : "" + statistics.getMaxSum());
     }
 
-    private void refreshStatistics2(long count) {
+    /**
+     * Refresh other statistics on the main page
+     *
+     * @param count number of exercise
+     */
+    private void refreshStatisticsText2(long count) {
         Calendar calendar = Calendar.getInstance();
         int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
         String dayOfYear_Trainings = count + "/" + dayOfYear;

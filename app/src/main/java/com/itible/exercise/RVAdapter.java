@@ -45,7 +45,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.statisticsDao = statisticsDao;
     }
 
-    private void loadData(String exerciseName) {
+    private void loadStatistics(String exerciseName) {
         statisticsDao.get(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -78,6 +78,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.onBindViewHolder(holder, position, e);
     }
 
+    /**
+     * Recycler View to show  progress arrows and records
+     *
+     * @param holder
+     * @param position
+     * @param e
+     */
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, Exercise e) {
         ExerciseVH viewHolder = (ExerciseVH) holder;
         Exercise emp = e == null ? list.get(position) : e;
@@ -98,7 +105,6 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 .stream()
                 .max(Comparator.comparing(Exercise::getSum))
                 .orElse(new Exercise());
-
 
         if (position > 0) {
             Exercise pastMax = list.subList(0, position).stream().max(Comparator.comparing(Exercise::getMax)).orElse(new Exercise());
@@ -122,6 +128,11 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return list.size();
     }
 
+    /**
+     * Show edit training dialog a save
+     *
+     * @param exercise training to edit
+     */
     private void showEditTrainingDialog(Exercise exercise) {
         LayoutInflater factory = LayoutInflater.from(context);
         final View textEntryView = factory.inflate(R.layout.edit_exercise_layout, null);
@@ -134,7 +145,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         edtMax.setText(String.valueOf(exercise.getMax()), TextView.BufferType.EDITABLE);
         edtSum.setText(String.valueOf(exercise.getSum()), TextView.BufferType.EDITABLE);
         edtReps.setText(String.valueOf(exercise.getReps()), TextView.BufferType.EDITABLE);
-        loadData(exercise.getName());
+        loadStatistics(exercise.getName());
 
         Dialog editTrainingDialog = new AlertDialog.Builder(context)
                 .setIcon(android.R.drawable.ic_dialog_alert)

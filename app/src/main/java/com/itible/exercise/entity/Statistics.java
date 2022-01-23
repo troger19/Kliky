@@ -4,6 +4,9 @@ import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
 
+/**
+ * Entity holding the record for max and sum
+ */
 public class Statistics implements Serializable {
 
     @Exclude
