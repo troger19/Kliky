@@ -1,6 +1,8 @@
 package com.itible.exercise;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.itible.exercise.entity.Exercise;
 import com.itible.exercise.entity.ExerciseDao;
 import com.itible.exercise.entity.StatisticsDao;
+import com.itible.exercise.util.DateComparator;
 
 import java.util.ArrayList;
 
@@ -22,7 +25,7 @@ public class LoadTrainingActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     RVAdapter adapter;
     ExerciseDao exerciseDao;
-    StatisticsDao statsDao;
+    StatisticsDao statisticsDao;
     boolean isLoading = false;
     String key = null;
 
@@ -31,6 +34,10 @@ public class LoadTrainingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load_training);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
+        String exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
 
         swipeRefreshLayout = findViewById(R.id.swip);
         recyclerView = findViewById(R.id.rv);
@@ -43,15 +50,15 @@ public class LoadTrainingActivity extends AppCompatActivity {
         int arrow_down = R.drawable.custom_arrow_down;
         int arrow_up = R.drawable.custom_arrow_up;
         exerciseDao = new ExerciseDao();
-        statsDao = new StatisticsDao();
-        adapter = new RVAdapter(this, arrow_up, arrow_down, exerciseDao);
+        statisticsDao = new StatisticsDao();
+        adapter = new RVAdapter(this, arrow_up, arrow_down, exerciseDao, statisticsDao);
         recyclerView.setAdapter(adapter);
-        loadData();
+        loadData(user + "_" + exerciseName);
     }
 
-    private void loadData() {
+    private void loadData(String exerciseName) {
         swipeRefreshLayout.setRefreshing(true);
-        exerciseDao.get(key).addListenerForSingleValueEvent(new ValueEventListener() {
+        exerciseDao.getByUser(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<Exercise> emps = new ArrayList<>();
@@ -61,6 +68,7 @@ public class LoadTrainingActivity extends AppCompatActivity {
                     emps.add(emp);
                     key = data.getKey();
                 }
+                emps.sort(new DateComparator());
                 adapter.setItems(emps);
                 adapter.notifyDataSetChanged();
                 isLoading = false;

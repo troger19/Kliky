@@ -28,18 +28,12 @@ public class ExerciseDao {
         return databaseReference.child(key).removeValue();
     }
 
-    public Query get(String key) {
-        if (key == null) {
-//            return databaseReference.orderByKey().limitToFirst(8);
-//            return databaseReference.orderByKey();
-            return databaseReference.orderByChild("date");
-        }
-//        return databaseReference.orderByKey().startAfter(key).limitToFirst(8);
-//        return databaseReference.orderByChild("date").orderByChild("time");
-        return databaseReference.orderByChild("date");
+    public Query getByUser(String exerciseName) {
+        return databaseReference.orderByChild("name").equalTo(exerciseName);
     }
 
-    public Query getAll() {
-        return databaseReference.orderByKey();
+
+    public Query getAll(String exerciseName) {
+        return databaseReference.orderByChild("name").equalTo(exerciseName);
     }
 }

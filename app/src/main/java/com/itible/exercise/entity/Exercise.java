@@ -13,16 +13,18 @@ public class Exercise implements Serializable {
     public int sum;
     public int max;
     public boolean progress;
+    public String name;
 
     public Exercise() {
     }
 
-    public Exercise(long date, String reps, int sum, int max, boolean progress) {
+    public Exercise(long date, String reps, int sum, int max, boolean progress, String name) {
         this.date = date;
         this.reps = reps;
         this.sum = sum;
         this.max = max;
         this.progress = progress;
+        this.name = name;
     }
 
     public String getReps() {
@@ -71,5 +73,13 @@ public class Exercise implements Serializable {
 
     public void setProgress(boolean progress) {
         this.progress = progress;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

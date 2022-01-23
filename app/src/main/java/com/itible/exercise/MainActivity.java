@@ -50,12 +50,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
+        String exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
 
         int pushUp = R.drawable.custom_push_up;
 
@@ -83,69 +84,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        loadData();
-//
-//        listItems = new ArrayList<>();
-//
-//        dao.get(null).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-////                List<Exercise> tmpList=  new ArrayList<>();
-//                for (DataSnapshot data : snapshot.getChildren()) {
-//                    Exercise exercise = data.getValue(Exercise.class);
-//                    listItems.add(exercise);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//
-//        Collections.sort(listItems, new Comparator<Exercise>() {
-//            @Override
-//            public int compare(Exercise exercise1, Exercise exercise2) {
-//                return exercise1.getDate().compareTo(exercise2.getDate());
-//            }
-//        });
-//
-//        Exercise maxRepKlik;
-//        Exercise maxSumKlik;
-//
-
-//        if (listItems.isEmpty()) {
-//            maxRepKlik = new Exercise(null, "", 0, 0,true);
-//            maxSumKlik = new Exercise(null, "", 0, 0,true);
-//        } else {
-//            maxRepKlik = Collections.max(listItems, new MaxRepsComparator());
-//            maxSumKlik = Collections.max(listItems, new MaxSumComparator());
-//        }
-//
-//        int maxKlik = maxRepKlik.getMax();
-//        txtMaxReps.setText(statistics==null?"0":""+statistics.getMaxReps());
-//        int maxSum = maxSumKlik.getSum();
-//        txtMaxSum.setText(statistics==null?"0":""+statistics.getMaxSum());
-
-
-//        adapter = new CustomAdapterKliky(listItems, getApplicationContext(), maxKlik, maxSum, arrow_down, arrow_up);
-//        listView.setAdapter(adapter);
-//
-//        alarmIntent = new Intent(MainActivity.this, JokesReceiver.class);
-//        alarmIntent.putExtra(BALANCE, dayOfYear_Trainings);
-//        alarmIntent.putExtra(MAX, maxKlik);
-//        alarmIntent.putExtra(SUM, maxSum);
-//        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, 0);
-////         cancel the intent so the Alert Manager running on Background is deactivated
-//        if (!shouldSendSms) {
-//            cancelAlarm();
-//        } else {
-//            smsAlarmSetup();
-//        }
+        loadData(user + "_" + exerciseName);
     }
 
-    private void loadData() {
-        statisticsDao.get().addListenerForSingleValueEvent(new ValueEventListener() {
+    private void loadData(String exerciseName) {
+        statisticsDao.get(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()) {
@@ -160,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        exerciseDao.getAll().addListenerForSingleValueEvent(new ValueEventListener() {
+        exerciseDao.getAll(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 long childrenCount = snapshot.getChildrenCount();
@@ -172,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        exerciseDao.getAll().addListenerForSingleValueEvent(new ValueEventListener() {
+        exerciseDao.getAll(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()) {
@@ -196,9 +139,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void refreshStatistics2(long count) {
         Calendar calendar = Calendar.getInstance();
         int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
-        int arrow_down = R.drawable.custom_arrow_down;
-        int arrow_up = R.drawable.custom_arrow_up;
-//
         String dayOfYear_Trainings = count + "/" + dayOfYear;
         txtDayOfYear.setText(dayOfYear_Trainings);
         if (count > dayOfYear) {

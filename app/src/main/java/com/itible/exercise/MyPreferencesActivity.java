@@ -11,7 +11,8 @@ public class MyPreferencesActivity extends PreferenceActivity {
     public static final String PAUSE_PREF = "pause_preference";
     public static final String MOBILE_NUMBER_PREF = "mobile_number_preference";
     final static String SENDING_SMS = "alarm_preference";
-    private final static String LOG_TAG = MyPreferencesActivity.class.getSimpleName();
+    public final static String USER_PREF = "user_preference";
+    public final static String EXERCISE_NAME_PREF = "exercise_name_preference";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

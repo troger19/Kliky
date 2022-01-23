@@ -3,12 +3,17 @@
 
     <PreferenceCategory android:title="User Detail Preferences">
         <PreferenceScreen android:title="User Detail">
-
             <EditTextPreference
                 android:dialogTitle="Enter Username"
-                android:key="username_preference"
+                android:key="user_preference"
                 android:summary="Username which will be used to store the training."
                 android:title="Username" />
+
+            <EditTextPreference
+                android:dialogTitle="Enter Exercise name"
+                android:key="exercise_name_preference"
+                android:summary="Name of the exercise"
+                android:title="Exercise name" />
 
         </PreferenceScreen>
     </PreferenceCategory>

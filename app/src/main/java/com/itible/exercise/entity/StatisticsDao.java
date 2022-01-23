@@ -28,7 +28,7 @@ public class StatisticsDao {
         return databaseReference.child(key).removeValue();
     }
 
-    public Query get() {
-        return databaseReference.limitToFirst(1);
+    public Query get(String name) {
+        return databaseReference.orderByChild("name").equalTo(name).limitToFirst(1);
     }
 }

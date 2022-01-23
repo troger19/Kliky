@@ -14,8 +14,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.itible.exercise.entity.Exercise;
 import com.itible.exercise.entity.ExerciseDao;
+import com.itible.exercise.entity.Statistics;
+import com.itible.exercise.entity.StatisticsDao;
 import com.itible.exercise.util.Util;
 
 import java.text.ParseException;
@@ -27,15 +32,33 @@ import java.util.HashMap;
 public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private final ExerciseDao exerciseDao;
+    private final StatisticsDao statisticsDao;
+    private Statistics statistics;
     ArrayList<Exercise> list = new ArrayList<>();
     int arrowDown, arrowUp;
 
-
-    public RVAdapter(Context ctx, int arrowUp, int arrowDown, ExerciseDao exerciseDao) {
+    public RVAdapter(Context ctx, int arrowUp, int arrowDown, ExerciseDao exerciseDao, StatisticsDao statisticsDao) {
         this.context = ctx;
         this.arrowUp = arrowUp;
         this.arrowDown = arrowDown;
         this.exerciseDao = exerciseDao;
+        this.statisticsDao = statisticsDao;
+    }
+
+    private void loadData(String exerciseName) {
+        statisticsDao.get(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    statistics = data.getValue(Statistics.class);
+                    statistics.setKey(data.getKey());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 
     public void setItems(ArrayList<Exercise> emp) {
@@ -102,7 +125,6 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private void showEditTrainingDialog(Exercise exercise) {
         LayoutInflater factory = LayoutInflater.from(context);
         final View textEntryView = factory.inflate(R.layout.edit_exercise_layout, null);
-
         final EditText edtDate = textEntryView.findViewById(R.id.edt_date);
         final EditText edtMax = textEntryView.findViewById(R.id.edt_max_rep);
         final EditText edtSum = textEntryView.findViewById(R.id.edt_max_sum);
@@ -112,6 +134,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         edtMax.setText(String.valueOf(exercise.getMax()), TextView.BufferType.EDITABLE);
         edtSum.setText(String.valueOf(exercise.getSum()), TextView.BufferType.EDITABLE);
         edtReps.setText(String.valueOf(exercise.getReps()), TextView.BufferType.EDITABLE);
+        loadData(exercise.getName());
 
         Dialog editTrainingDialog = new AlertDialog.Builder(context)
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -133,6 +156,21 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     exerciseDao.update(exercise.getKey(), hashMap)
                             .addOnSuccessListener(suc -> Toast.makeText(context, "Record is updated", Toast.LENGTH_SHORT).show()).addOnFailureListener(er -> Toast.makeText(context, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
 
+                    boolean updateStatistics = false;
+                    HashMap<String, Object> hashMap1 = new HashMap<>();
+                    hashMap1.put("name", statistics.getName());
+                    if (Integer.parseInt(edtSum.getText().toString()) > statistics.getMaxSum()) {// if sum record is made
+                        hashMap1.put("maxSum", Integer.parseInt(edtSum.getText().toString()));
+                        updateStatistics = true;
+                    }
+                    if (Integer.parseInt(edtMax.getText().toString()) > statistics.getMaxReps()) {  // if max record is made
+                        hashMap1.put("maxReps", Integer.parseInt(edtMax.getText().toString()));
+                        updateStatistics = true;
+                    }
+                    if (updateStatistics) {
+                        statisticsDao.update(statistics.getKey(), hashMap1)
+                                .addOnSuccessListener(suc -> Toast.makeText(context, "Statistics is updated", Toast.LENGTH_SHORT).show()).addOnFailureListener(er -> Toast.makeText(context, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
                     Intent intent = new Intent(context, MainActivity.class);
                     context.startActivity(intent);
                 })
@@ -142,6 +180,4 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         editTrainingDialog.setCanceledOnTouchOutside(false);
         editTrainingDialog.show();
     }
-
-
 }

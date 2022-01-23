@@ -56,7 +56,6 @@ public class CounterActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_counter);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         statistics = (Statistics) getIntent().getSerializableExtra("Statistics");
         final MediaPlayer mp = MediaPlayer.create(this, R.raw.bell_start);
 
@@ -69,12 +68,13 @@ public class CounterActivity extends FragmentActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         NUMBER_OF_SERIES = Integer.parseInt(sharedPref.getString(MyPreferencesActivity.NUMBER_OF_SERIES_PREF, "10"));
         PAUSE_IN_SECONDS = Integer.parseInt(sharedPref.getString(MyPreferencesActivity.PAUSE_PREF, "60"));
-
+        String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
+        String exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
 
         progressCircle.setOnClickListener(v -> {
             counter++;
             progressCircle.setValueAnimated(0, 100, PAUSE_IN_SECONDS * 1000);
-            showEnterRepsDialog();
+            showEnterRepsDialog(user + "_" + exerciseName);
         });
 
         progressCircle.setOnAnimationStateChangedListener(new AnimationStateChangedListener() {
@@ -97,7 +97,7 @@ public class CounterActivity extends FragmentActivity {
         });
     }
 
-    private void showEnterRepsDialog() {
+    private void showEnterRepsDialog(String exerciseName) {
         AlertDialog.Builder enterRepsDialog = new AlertDialog.Builder(this);
         enterRepsDialog.setTitle("Insert txtReps");
         final EditText input = new EditText(this);
@@ -113,7 +113,7 @@ public class CounterActivity extends FragmentActivity {
                 repsBuilder.append(dialogText).append(",");
                 txtRepsArray.setText(repsBuilder);
                 if (counter == NUMBER_OF_SERIES) {
-                    showDoneSnackBar();
+                    showDoneSnackBar(exerciseName);
                 }
 
             }
@@ -131,7 +131,7 @@ public class CounterActivity extends FragmentActivity {
     }
 
 
-    private void showSaveTrainingDialog() {
+    private void showSaveTrainingDialog(String exerciseName) {
         AlertDialog.Builder saveTrainingDialog = new AlertDialog.Builder(this);
         saveTrainingDialog.setTitle("Save training");
         saveTrainingDialog.setCancelable(false);
@@ -142,7 +142,7 @@ public class CounterActivity extends FragmentActivity {
         saveTrainingDialog.setView(editTextReps);
 
         saveTrainingDialog.setPositiveButton("Save", (dialog, which) -> {
-            saveToDb(Util.removeLastComma(editTextReps.getText().toString()));
+            saveToDb(Util.removeLastComma(editTextReps.getText().toString()), exerciseName);
             Intent intent = new Intent(CounterActivity.this, MainActivity.class);
             startActivity(intent);
         });
@@ -153,13 +153,13 @@ public class CounterActivity extends FragmentActivity {
         d.show();
     }
 
-    private void showDoneSnackBar() {
+    private void showDoneSnackBar(String exerciseName) {
         Snackbar bar = Snackbar.make(coordinatorLayout, "Training Complete", Snackbar.LENGTH_INDEFINITE)
-                .setAction("Save", v -> showSaveTrainingDialog());
+                .setAction("Save", v -> showSaveTrainingDialog(exerciseName));
         bar.show();
     }
 
-    private void saveToDb(String repsToSave) {
+    private void saveToDb(String repsToSave, String name) {
         String[] repetitions = repsToSave.split(",");
         int sum = 0;
         int max = 0;
@@ -182,6 +182,7 @@ public class CounterActivity extends FragmentActivity {
         exercise.setReps(Arrays.toString(repetitions));
         exercise.setSum(sum);
         exercise.setMax(max);
+        exercise.setName(name);
 
         exerciseDao.add(exercise)
                 .addOnSuccessListener(suc -> {
@@ -194,6 +195,7 @@ public class CounterActivity extends FragmentActivity {
             Statistics statistics = new Statistics();
             statistics.setMaxReps(max);
             statistics.setMaxSum(sum);
+            statistics.setName(name);
             statisticsDao.add(statistics)
                     .addOnSuccessListener(suc -> {
                         Toast.makeText(this, "Statistic record is inserted", Toast.LENGTH_SHORT).show();
@@ -201,13 +203,16 @@ public class CounterActivity extends FragmentActivity {
                     .addOnFailureListener(er ->
                             Toast.makeText(this, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
         } else {
-            if (sum > statistics.getMaxSum() || max > statistics.getMaxReps()) { // if record is made
-                HashMap<String, Object> hashMap = new HashMap<>();
-                hashMap.put("maxReps", statistics.getMaxReps());
-                hashMap.put("maxSum", statistics.getMaxSum());
-                statisticsDao.update(statistics.getKey(), hashMap)
-                        .addOnSuccessListener(suc -> Toast.makeText(this, "Record is updated", Toast.LENGTH_SHORT).show()).addOnFailureListener(er -> Toast.makeText(this, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("name", statistics.getName());
+            if (sum > statistics.getMaxSum()) {// if sum record is made
+                hashMap.put("maxSum", sum);
             }
+            if (max > statistics.getMaxReps()) {  // if max record is made
+                hashMap.put("maxReps", max);
+            }
+            statisticsDao.update(statistics.getKey(), hashMap)
+                    .addOnSuccessListener(suc -> Toast.makeText(this, "Record is updated", Toast.LENGTH_SHORT).show()).addOnFailureListener(er -> Toast.makeText(this, "" + er.getMessage(), Toast.LENGTH_SHORT).show());
             finish();
             Intent intent = new Intent(CounterActivity.this, MainActivity.class);
             startActivity(intent);

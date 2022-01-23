@@ -6,18 +6,19 @@ import java.io.Serializable;
 
 public class Statistics implements Serializable {
 
-
     @Exclude
     private String key;
     public int maxSum;
     public int maxReps;
+    public String name;
 
     public Statistics() {
     }
 
-    public Statistics(int maxSum, int maxReps) {
+    public Statistics(int maxSum, int maxReps, String name) {
         this.maxSum = maxSum;
         this.maxReps = maxReps;
+        this.name = name;
     }
 
     public int getMaxSum() {
@@ -42,5 +43,13 @@ public class Statistics implements Serializable {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
