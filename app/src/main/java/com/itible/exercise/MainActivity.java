@@ -42,11 +42,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String SUM = "sum";
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
     ListView listView;
-    TextView txtMaxReps, txtMaxSum, txtDayOfYear;
+    TextView txtMaxReps, txtMaxSum, txtDayOfYear, txtExerciseName;
     Statistics statistics;
     List<Long> trainingDatesAsTime = new ArrayList<>();
     private StatisticsDao statisticsDao;
     private ExerciseDao exerciseDao;
+    private String exerciseName, user;
+    private SharedPreferences sharedPref;
+
+    private final SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            startActivity(intent);
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +66,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
-        String exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPref.registerOnSharedPreferenceChangeListener(listener);
+        user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
+        exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
 
         int pushUp = R.drawable.custom_push_up;
 
@@ -67,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         txtMaxReps = findViewById(R.id.txtMaxReps);
         txtMaxSum = findViewById(R.id.txtMaxSum);
         txtDayOfYear = findViewById(R.id.txtDayOfYear);
+        txtExerciseName = findViewById(R.id.txtExerciseName);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setImageResource(pushUp);
@@ -101,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     statistics.setKey(data.getKey());
                     refreshStatisticsText(statistics); // calling a function with data
                 }
+                refreshStatisticsText(statistics);
             }
 
             @Override
@@ -144,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void refreshStatisticsText(Statistics statistics) {
         txtMaxReps.setText(statistics == null ? "0" : "" + statistics.getMaxReps());
         txtMaxSum.setText(statistics == null ? "0" : "" + statistics.getMaxSum());
+        txtExerciseName.setText(exerciseName);
     }
 
     /**
