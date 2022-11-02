@@ -28,12 +28,18 @@ public class ExerciseDao {
         return databaseReference.child(key).removeValue();
     }
 
-    public Query getByUser(String exerciseName) {
-        return databaseReference.orderByChild("name").equalTo(exerciseName);
+    /**
+     * Get all exercises where name.startsWith(username)
+     *
+     * @param username username
+     * @return query
+     */
+    public Query getAllByUsername(String username) {
+        return databaseReference.orderByChild("name").startAt(username).endAt(username + '\uF8FF');
     }
 
 
-    public Query getAll(String exerciseName) {
+    public Query getByName(String exerciseName) {
         return databaseReference.orderByChild("name").equalTo(exerciseName);
     }
 }

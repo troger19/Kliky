@@ -58,7 +58,7 @@ public class LoadTrainingActivity extends AppCompatActivity {
 
     private void loadData(String exerciseName) {
         swipeRefreshLayout.setRefreshing(true);
-        exerciseDao.getByUser(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
+        exerciseDao.getByName(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<Exercise> emps = new ArrayList<>();

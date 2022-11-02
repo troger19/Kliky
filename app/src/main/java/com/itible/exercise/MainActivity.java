@@ -18,6 +18,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
@@ -33,8 +35,11 @@ import com.itible.exercise.fragments.CounterActivity;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-
+//TODO utilize Joke generator
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public final static String BALANCE = "balance";
@@ -42,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String SUM = "sum";
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
     ListView listView;
-    TextView txtMaxReps, txtMaxSum, txtDayOfYear, txtExerciseName;
+    TextView txtMaxReps, txtMaxSum, txtDayOfYear, txtExerciseName, txtAllTrainingsCount, txtAllExerciseTypes;
     Statistics statistics;
     List<Long> trainingDatesAsTime = new ArrayList<>();
     private StatisticsDao statisticsDao;
@@ -81,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         txtMaxSum = findViewById(R.id.txtMaxSum);
         txtDayOfYear = findViewById(R.id.txtDayOfYear);
         txtExerciseName = findViewById(R.id.txtExerciseName);
+        txtAllTrainingsCount = findViewById(R.id.txtAllTrainingsCount);
+        txtAllExerciseTypes = findViewById(R.id.txtAllExerciseTypes);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setImageResource(pushUp);
@@ -113,9 +120,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 for (DataSnapshot data : snapshot.getChildren()) {
                     statistics = data.getValue(Statistics.class);
                     statistics.setKey(data.getKey());
-                    refreshStatisticsText(statistics); // calling a function with data
+                    refreshStatsSelectedExercise(statistics); // calling a function with data
                 }
-                refreshStatisticsText(statistics);
+                refreshStatsSelectedExercise(statistics);
             }
 
             @Override
@@ -123,11 +130,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        exerciseDao.getAll(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
+        exerciseDao.getByName(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 long childrenCount = snapshot.getChildrenCount();
-                refreshStatisticsText2(childrenCount);
+                refreshStatsSelectedExerciseCount(childrenCount);
             }
 
             @Override
@@ -135,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        exerciseDao.getAll(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
+        exerciseDao.getByName(exerciseName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()) {
@@ -149,6 +156,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        exerciseDao.getAllByUsername(user).get().addOnCompleteListener(new OnCompleteListener<>() {
+            long allExercisesForUserCount;
+
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult() != null) {
+                        allExercisesForUserCount = task.getResult().getChildrenCount();
+                        Iterable<DataSnapshot> children = task.getResult().getChildren();
+                        Set<String> uniqueExerciseNames = StreamSupport.stream(children.spliterator(), false)
+                                .map(a -> a.getValue(Exercise.class).getName())
+                                .map(x -> x.replace(user + "_", ""))
+                                .collect(Collectors.toSet());
+                        refreshStatsAllTrainingsCount(uniqueExerciseNames, allExercisesForUserCount);
+                    } else {
+                        allExercisesForUserCount = 0;
+                        Log.d(LOG_TAG, "No such user");
+                    }
+                } else {
+                    Log.d(LOG_TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
     }
 
     /**
@@ -156,18 +187,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      *
      * @param statistics statistics
      */
-    private void refreshStatisticsText(Statistics statistics) {
+    private void refreshStatsSelectedExercise(Statistics statistics) {
         txtMaxReps.setText(statistics == null ? "0" : "" + statistics.getMaxReps());
         txtMaxSum.setText(statistics == null ? "0" : "" + statistics.getMaxSum());
         txtExerciseName.setText(exerciseName);
     }
 
     /**
-     * Refresh other statistics on the main page
+     * Load the current exercise count vs day of the year on the main page
      *
      * @param count number of exercise
      */
-    private void refreshStatisticsText2(long count) {
+    private void refreshStatsSelectedExerciseCount(long count) {
         Calendar calendar = Calendar.getInstance();
         int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
         String dayOfYear_Trainings = count + "/" + dayOfYear;
@@ -176,6 +207,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             txtDayOfYear.setTextColor(getResources().getColor(R.color.colorCounterPositive));
         } else {
             txtDayOfYear.setTextColor(getResources().getColor(R.color.colorCounterNegative));
+        }
+    }
+
+    /**
+     * Refresh other statistics on the main page
+     *
+     * @param count number of exercise
+     */
+    private void refreshStatsAllTrainingsCount(Set<String> uniqueExerciseNames, long count) {
+        txtAllExerciseTypes.setText(uniqueExerciseNames.toString());
+        Calendar calendar = Calendar.getInstance();
+        int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
+        String dayOfYear_Trainings = count + "/" + dayOfYear;
+        txtAllTrainingsCount.setText(dayOfYear_Trainings);
+        if (count > dayOfYear) {
+            txtAllTrainingsCount.setTextColor(getResources().getColor(R.color.colorCounterPositive));
+        } else {
+            txtAllTrainingsCount.setTextColor(getResources().getColor(R.color.colorCounterNegative));
         }
     }
 
@@ -210,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Assynchornuosly fill List of training dates
+     * Asynchronously fill List of training dates
      *
      * @param date time in milis
      */
