@@ -10,8 +10,8 @@ import java.util.HashMap;
 public class ExerciseDao {
     private final DatabaseReference databaseReference;
 
-    public ExerciseDao() {
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
+    public ExerciseDao(FirebaseDatabase db) {
+//        FirebaseDatabase db = FirebaseDatabase.getInstance();
 //        db.setPersistenceEnabled(true);
         databaseReference = db.getReference(Exercise.class.getSimpleName());
     }

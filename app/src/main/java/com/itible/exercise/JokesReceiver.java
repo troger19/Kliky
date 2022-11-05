@@ -4,74 +4,105 @@ package com.itible.exercise;
  * Created by jan.babel on 29/12/2016.
  */
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.telephony.SmsManager;
-import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+
 
 public class JokesReceiver extends BroadcastReceiver {
 
     private static final String LAST_JOKE_POSITION = "lastJoke";
     private int jokePosition;
+    public static String NOTIFICATION_ID = "notification-id";
+    public static final String NOTIFICATION_CHANNEL_ID = "10001";
 
     @Override
     public void onReceive(Context context, Intent intent) {
+//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+//        String mobileNumber = sharedPref.getString(MyPreferencesActivity.MOBILE_NUMBER_PREF, "+421907131960");
+////        String messageFromPreferences = sharedPref.getString(MyPreferencesActivity.SMS_MESSAGE_PREF, "Zase sa flakas!?");
+//        jokePosition = sharedPref.getInt(LAST_JOKE_POSITION, 0);
+//        String messageFromPreferences = getJoke(jokePosition);
+//
+//        boolean shouldSendSms = sharedPref.getBoolean(MyPreferencesActivity.SENDING_SMS, false);
+//        String balance = "";
+//        int max = 0, sum = 0;
+//        Bundle bd = intent.getExtras();
+//
+//        if (bd != null) {
+//            balance = (String) bd.get(MainActivity.BALANCE);
+//            max = bd.getInt(MainActivity.MAX);
+//            sum = bd.getInt(MainActivity.SUM);
+//        }
+//        StringBuilder stringBuilder = new StringBuilder();
+//        stringBuilder.append(messageFromPreferences).append(" max:").append(max).append(" sum: ").append(sum).append(" balance: ").append(balance);
+//
+//        if (shouldSendSms) {
+//            Toast.makeText(context, "Sending SMS", Toast.LENGTH_SHORT).show();
+//            SmsManager smsManager = SmsManager.getDefault();
+//            smsManager.sendTextMessage(mobileNumber, null, stringBuilder.toString(), null, null);
+//
+//            SharedPreferences.Editor editor = sharedPref.edit();
+//            editor.putInt(LAST_JOKE_POSITION, ++jokePosition);
+//            editor.commit();
+//        }
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String mobileNumber = sharedPref.getString(MyPreferencesActivity.MOBILE_NUMBER_PREF, "+421907131960");
-//        String messageFromPreferences = sharedPref.getString(MyPreferencesActivity.SMS_MESSAGE_PREF, "Zase sa flakas!?");
-        jokePosition = sharedPref.getInt(LAST_JOKE_POSITION, 0);
-        String messageFromPreferences = getJoke(jokePosition);
-
-        boolean shouldSendSms = sharedPref.getBoolean(MyPreferencesActivity.SENDING_SMS, false);
-        String balance = "";
-        int max = 0, sum = 0;
-        Bundle bd = intent.getExtras();
-
-        if (bd != null) {
-            balance = (String) bd.get(MainActivity.BALANCE);
-            max = bd.getInt(MainActivity.MAX);
-            sum = bd.getInt(MainActivity.SUM);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+            assert notificationManager != null;
+            notificationManager.createNotificationChannel(notificationChannel);
         }
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(messageFromPreferences).append(" max:").append(max).append(" sum: ").append(sum).append(" balance: ").append(balance);
-
-        if (shouldSendSms) {
-            Toast.makeText(context, "Sending SMS", Toast.LENGTH_SHORT).show();
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(mobileNumber, null, stringBuilder.toString(), null, null);
-
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(LAST_JOKE_POSITION, ++jokePosition);
-            editor.commit();
-        }
+        int id = intent.getIntExtra(NOTIFICATION_ID, 0);
+        assert notificationManager != null;
+        notificationManager.notify(id, createNotification(context));
     }
 
+
+    Notification createNotification(Context context) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "default");
+        builder.setContentTitle("Scheduled Notification");
+        String joke = getJoke(new Random().nextInt(66));
+        builder.setContentText(joke);
+        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(joke));
+        builder.setSmallIcon(R.drawable.custom_arrow_down);
+        builder.setAutoCancel(true);
+        builder.setChannelId(NOTIFICATION_CHANNEL_ID);
+        return builder.build();
+    }
+
+    /**
+     * 67 jokes
+     *
+     * @param position
+     * @return
+     */
     private String getJoke(int position) {
         List<String> jokes = Arrays.asList(
-                "1.Babka hovori detom: Uhnite!! A deti uhnili",
-                "2.Babka hovori detom: Uhnite!! A deti uhnili",
-                "3. Babka hovori detom: Uhnite!! A deti uhnili",
+                "Babka hovori detom: Uhnite!! A deti uhnili",
                 "je iba otazkou zornych uhlov,ci koliska nieje truhlou...",
                 "Viete, co by sa stalo, keby sa Zem otacala 30x rychlejsie??? Muzi by mali stale vyplatu a zeny by vykrvacali..",
                 "U usneho lekara: cistim si usi klincom, a zrazu ticho!",
                 "Nedockavy mladik bol dlho odluceny od svojej milej, preto jej napisal v nahlivosti nasledovnu SMS: UzMIJEBEZTEBZDLHO! A bolo zle.",
-                "co je to maximalny feminizmus? Keď zena pri milovani pouziva gumenu ancu...",
+                "Co je to maximalny feminizmus? Keď zena pri milovani pouziva gumenu ancu...",
                 "VRCHOL GEOMETRIE:Stat v rohu okruhlej miestnosti...",
                 "Dve piskoty idu po ceste. Jednu prejde auto a druha hovori:Co sa mrvis?",
                 "Da sa dvoma dierami zapchat jedna? Da, keď pichnete niekomu nos do zadku..",
                 "Lezia na stole vedla seba banan a vibrator. Banan vravi vibratoru: co sa trasies, ty somar, teba aj tak nezozeru.",
                 "Mucha, kam letis? No a co!",
-                "aky je rozdiel medzi muchou a svokrou???....mucha otravuje len v lete....",
+                "Aky je rozdiel medzi muchou a svokrou???....mucha otravuje len v lete....",
                 "Viete kde najdete korytnacku bez noh?Tam kde ste ju nechali.",
-                "co urobi blondinka z dvomi zeleznymi gulami? Jednu strati a druhu pokazi.",
+                "Co urobi blondinka s dvomi zeleznymi gulami? Jednu strati a druhu pokazi.",
                 "Vies aky je rozdiel medzi tebou a samponom?? Ziadny.Obaja ste na hlavu...",
                 "Vies, preco stvoril Boh muzom nohy do O?Lebo vsetko, co sa mu nepacilo dal do zatvorky.",
                 "Pyta sa slepy bubenik hlucheho gitaristu:Uz tancuju? Preco? Uz hrame?",
@@ -93,7 +124,7 @@ public class JokesReceiver extends BroadcastReceiver {
                 "Milacik milujem ta tak, ze by som pre Teba skocil do najvacsieho ohna na svete, preplaval najvacsi ocean na svete a skocil aj do najhlbsej studne na svete.PS: Pridem zajtra k Tebe, ak nebude prsat.",
                 "Ocko, co to mas take chlpate medzi nohami?To nic Jurko, to je iba jezko.Fiha, ten jezko ma ale penis.",
                 "Vies jaky je rozdiel medzi motorovou pilo a toaletnym papierom???? ziadny jeden neopatrny pohyb a prsty su v riti...",
-                "preco nohy smrdia? lebo rastu od rici!!!...",
+                "Preco nohy smrdia? lebo rastu od rici!!!...",
                 "Rozhovor dvoch chlapov: Vratil si mu ten noz? ano! A co povedal? Au!",
                 "Zostanem s tebou v posteli iba chvilu. Pohladim tvoje intimne miesta, zacitis moju vonu a potom sa uz budem iba vznasat. Tvoj prd",
                 "Vychodoslovensky policajti nasli v lese mrtvolu.Bola skareda a bez mozgu.Mam o teba strach,radsej mi prezvon",
@@ -115,10 +146,9 @@ public class JokesReceiver extends BroadcastReceiver {
                 "Bodaj by sa ti EKG vyrovnalo!",
                 "V ramci vladnej akcie SOS HLADOVy ROM Vam bol prideleny 1 rabujuci rom na vykrmovanie. Ak si ho nepridete vyzdvihnut do 24 hodin, bude Vam pridelena cela rodina!",
                 "Chces byt debil? Buď sam sebou.",
-                "Ide babka cez kolajnice a na zemi sa nieco leskne. Babka to zdvihne a to patkoruna.Ja mam teda stastny denTdn, tdn",
-                "Jednooky a slepy idu s motorkou na diskoteku. Idu cez les a jednooky si na konari vypichne aj druhe oko. Vravi :No , a sme dosli! A slepy na to: caute baby!",
+                "Ide babka cez kolajnice a na zemi sa nieco leskne. Babka to zdvihne a to patkoruna.Ja mam teda stastny den. Tdn, tdn",
+                "Jednooky a slepy idu s motorkou na diskoteku. Idu cez les a jednooky si na konari vypichne aj druhe oko. Vravi :No, a sme dosli! A slepy na to: caute baby!",
                 "Mam sa dobre, ale zle to znasam.",
-                "Kolekcia damskych nohaviciek: Monday, Tuesday, Wendsday, ...Kolekcia panskych slipov: January, February, March, ..",
                 "Isiel som na ranajky. Ak sa nevratim do 12.30, tak aj na obed.",
                 "Aka je to svata zena?Ta co lezi na krizoch a prijima telo pana.",
                 "Priatelka mi nasla vo vrecku ruz. Povedal som jej, ze ju podvadzam s inou.Citil by som sa trapne, keby som jej mal povedat, ze predavam AVON.",

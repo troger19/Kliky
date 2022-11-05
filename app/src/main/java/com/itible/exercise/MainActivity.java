@@ -1,5 +1,8 @@
 package com.itible.exercise;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,7 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.itible.exercise.entity.Exercise;
 import com.itible.exercise.entity.ExerciseDao;
@@ -39,35 +43,44 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-//TODO utilize Joke generator
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+//TODO turn off the joke receiver from the properties
+// Save the last joke number in props
 
-    public final static String BALANCE = "balance";
-    public final static String MAX = "max";
-    public final static String SUM = "sum";
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
-    ListView listView;
     TextView txtMaxReps, txtMaxSum, txtDayOfYear, txtExerciseName, txtAllTrainingsCount, txtAllExerciseTypes;
     Statistics statistics;
     List<Long> trainingDatesAsTime = new ArrayList<>();
+    private View contentMainView;
     private StatisticsDao statisticsDao;
     private ExerciseDao exerciseDao;
     private String exerciseName, user;
     private SharedPreferences sharedPref;
-
+    private static FirebaseDatabase firebaseDatabase;
     private final SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
             startActivity(intent);
-
         }
     };
+
+    public static void cancelNotification(Context context) {
+        Intent intent = new Intent(context, JokesReceiver.class);
+        PendingIntent pending = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        manager.cancel(pending);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (firebaseDatabase == null) {
+            firebaseDatabase = FirebaseDatabase.getInstance();
+            firebaseDatabase.setPersistenceEnabled(true);
+        }
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -75,19 +88,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
         user = sharedPref.getString(MyPreferencesActivity.USER_PREF, "jano");
         exerciseName = sharedPref.getString(MyPreferencesActivity.EXERCISE_NAME_PREF, "kliky");
-
         int pushUp = R.drawable.custom_push_up;
 
-        statisticsDao = new StatisticsDao();
-        exerciseDao = new ExerciseDao();
+        statisticsDao = new StatisticsDao(firebaseDatabase);
+        exerciseDao = new ExerciseDao(firebaseDatabase);
 
-        listView = findViewById(R.id.list);
         txtMaxReps = findViewById(R.id.txtMaxReps);
         txtMaxSum = findViewById(R.id.txtMaxSum);
         txtDayOfYear = findViewById(R.id.txtDayOfYear);
         txtExerciseName = findViewById(R.id.txtExerciseName);
         txtAllTrainingsCount = findViewById(R.id.txtAllTrainingsCount);
         txtAllExerciseTypes = findViewById(R.id.txtAllExerciseTypes);
+        contentMainView = findViewById(R.id.content_main);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setImageResource(pushUp);
@@ -106,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadData(user + "_" + exerciseName);
+        scheduleNotification();
     }
 
     /**
@@ -228,7 +241,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -237,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             super.onBackPressed();
         }
+        contentMainView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -248,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        cancelNotification(getApplicationContext());
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
@@ -274,9 +288,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_calendar) { // display calendar
             CalendarPicker calendarFragment = new CalendarPicker(trainingDatesAsTime);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_main, calendarFragment)
+                    .replace(R.id.content_frame, calendarFragment)
                     .addToBackStack(null)
                     .commit();
+            contentMainView.setVisibility(View.INVISIBLE); // hide the content on  main page, because its overlay
         } else if (id == R.id.nav_slideshow) {
             Intent intent = new Intent(MainActivity.this, LoadTrainingActivity.class);
             startActivity(intent);
@@ -294,5 +309,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * Notification with everyday Joke
+     */
+    private void scheduleNotification() {
+        Intent notificationIntent = new Intent(this, JokesReceiver.class);
+        notificationIntent.putExtra(JokesReceiver.NOTIFICATION_ID, 1);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR_OF_DAY, 19); // For 1 PM or 2 PM
+        calendar.set(Calendar.MINUTE, 13);
+        calendar.set(Calendar.SECOND, 20);
+
+//        alarmManager.set(AlarmManager. ELAPSED_REALTIME_WAKEUP , 15 * 60*60 * 1000 , pendingIntent);
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 15 * 1000, pendingIntent);
+    }
+
+    /**
+     * Sharing firebase instance between multiple activities, because of OFFLINE mode and multiple DAOs
+     *
+     * @return FirebaseDatabase
+     */
+    public static FirebaseDatabase getFirebaseDB() {
+        return firebaseDatabase;
     }
 }

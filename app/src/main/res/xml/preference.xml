@@ -44,7 +44,7 @@
         android:title="About author">
         <intent
             android:action="android.intent.action.VIEW"
-            android:data="http://www.android.com" />
+            android:data="https://github.com/troger19" />
     </PreferenceScreen>
     </PreferenceCategory>
 

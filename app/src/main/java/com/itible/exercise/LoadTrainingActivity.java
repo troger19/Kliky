@@ -49,8 +49,8 @@ public class LoadTrainingActivity extends AppCompatActivity {
 
         int arrow_down = R.drawable.custom_arrow_down;
         int arrow_up = R.drawable.custom_arrow_up;
-        exerciseDao = new ExerciseDao();
-        statisticsDao = new StatisticsDao();
+        exerciseDao = new ExerciseDao(MainActivity.getFirebaseDB());
+        statisticsDao = new StatisticsDao(MainActivity.getFirebaseDB());
         adapter = new RVAdapter(this, arrow_up, arrow_down, exerciseDao, statisticsDao);
         recyclerView.setAdapter(adapter);
         loadData(user + "_" + exerciseName);

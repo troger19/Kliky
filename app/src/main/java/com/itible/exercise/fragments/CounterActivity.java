@@ -63,8 +63,8 @@ public class CounterActivity extends FragmentActivity {
         txtRepsArray = findViewById(R.id.txtReps);
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
-        exerciseDao = new ExerciseDao();
-        statisticsDao = new StatisticsDao();
+        exerciseDao = new ExerciseDao(MainActivity.getFirebaseDB());
+        statisticsDao = new StatisticsDao(MainActivity.getFirebaseDB());
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         NUMBER_OF_SERIES = Integer.parseInt(sharedPref.getString(MyPreferencesActivity.NUMBER_OF_SERIES_PREF, "10"));
         PAUSE_IN_SECONDS = Integer.parseInt(sharedPref.getString(MyPreferencesActivity.PAUSE_PREF, "60"));

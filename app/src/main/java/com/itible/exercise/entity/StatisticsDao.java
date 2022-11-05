@@ -10,9 +10,10 @@ import java.util.HashMap;
 public class StatisticsDao {
     private final DatabaseReference databaseReference;
 
-    public StatisticsDao() {
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-//        db.setPersistenceEnabled(true);
+    public StatisticsDao(FirebaseDatabase db) {
+//        FirebaseDatabase db = FirebaseDatabase.getInstance();
+//            db.setPersistenceEnabled(true);
+
         databaseReference = db.getReference(Statistics.class.getSimpleName());
     }
 
