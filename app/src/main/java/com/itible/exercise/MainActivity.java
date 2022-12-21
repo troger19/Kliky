@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         if (firebaseDatabase == null) {
             firebaseDatabase = FirebaseDatabase.getInstance();
-            firebaseDatabase.setPersistenceEnabled(true);
+//            firebaseDatabase.setPersistenceEnabled(true);
         }
 
         setContentView(R.layout.activity_main);
